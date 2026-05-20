@@ -4,7 +4,7 @@
 > 
 > The system performs marker detection, pose estimation, homography transformation, and 3D object projection, enabling interactive Augmented Reality applications based on computer vision techniques.
 > 
-> This work was developed in partnership with [Lab Penguin](https://github.com/Lab-Penguin) and the Intelligent Space ('is'), research laboratories of [IFES](https://guarapari.ifes.edu.br), Guarapari campus.
+> This work was developed in partnership with [Lab. Penguin](https://github.com/Lab-Penguin) and the Intelligent Space ('is'), research laboratories of [IFES](https://guarapari.ifes.edu.br), Guarapari campus.
 
 This repository contains two main approaches:
 

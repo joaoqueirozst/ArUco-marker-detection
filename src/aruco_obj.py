@@ -29,31 +29,10 @@ def load_obj(filename):
                 faces.append(face)
     return np.array(vertices), faces
 
-def rotate_obj(vertices, angle_degrees): # mtx rotação obj
-    angle_rad = np.deg2rad(angle_degrees)
-    cos_a = np.cos(angle_rad)
-    sin_a = np.sin(angle_rad)
-
-    # Matriz de rotação em torno do eixo Y
-    rotation_mtx = np.array([
-        [cos_a, -sin_a, 0],
-        [sin_a,  cos_a, 0],
-        [0,      0,     1]
-    ])
-
-    # Aplica a rotação a todos os vértices
-    rotated = vertices @ rotation_mtx.T
-    return rotated
-
 vertices, faces = load_obj("main/penguin.obj")
-vertices = vertices * 0.001
-marker_length = 0.25
+vertices = vertices * 0.001 # escala do obj
+marker_length = 0.25 # metros
 
-dz = 0
-ids = [17, 35, 49, 62, 68, 88, 94, 106, 110, 118, 973] # 17, 35, 49, 62, 68, 88, 94, 106, 110, 118, 973
-estado = 0
-sequencia = False
-fimzao = False
 while(True):
     frame = vs.read()
     frame = imutils.resize(frame, width=1024)
@@ -74,147 +53,29 @@ while(True):
     print(markerCorners)
 
     if markerIds is not None:
-        markerIds_flat = markerIds.flatten().tolist()
-
-        # Ativa a sequência apenas quando o primeiro marcador da lista for detectado
-        if not sequencia:
-            if ids[0] in markerIds_flat:
-                sequencia = True
-                estado = 0
-                dz = 0
-
-        if sequencia:
-            id_esperado = ids[estado]               
-
-            if id_esperado in markerIds_flat:
-                i = list(markerIds_flat).index(id_esperado)
-                corners = [markerCorners[i]]
-                ids_m = np.array([[id_esperado]])
-
-                cv2.aruco.drawDetectedMarkers(frame, corners, ids_m)
-
-                rvecs, tvecs, _ = cv2.aruco.estimatePoseSingleMarkers(corners, marker_length, camera_matrix, dist_coeffs)
+        cv2.aruco.drawDetectedMarkers(frame, corners, ids_m)
+        rvecs, tvecs, _ = cv2.aruco.estimatePoseSingleMarkers(markerCorners, marker_length, camera_matrix, dist_coeffs)
 
                 for rvec, tvec in zip(rvecs, tvecs):
+                    
                     # Desenhar eixo de referência no ArUco
                     cv2.drawFrameAxes(frame, camera_matrix, dist_coeffs, rvec, tvec, 0.1)
 
-                    r_mtx, _ = cv2.Rodrigues(rvec) # matriz de rotação -> girar vetores do referencial local do marcador para ref. global da cam
-                    
-                    if estado in [0, 1, 2, 3, 8, 9]:
-                        transfer = np.array([[0], [-dz], [0]])
-                        if dz < 0.1:
-                            dz += 0.002
-                        angle = 0
-                    elif estado in [10]:
-                        transfer = np.array([[0], [-dz], [0]])
-                        angle = 0
-                        if dz < 0:
-                            dz += 0.002
-                        else:
-                            fimzao = True
-
-                    elif estado in [4]:  
-                        transfer = np.array([[dx], [-dz], [0]])
-                        if dz < 0:
-                            dz += 0.002
-                            angle = 0 
-                        elif dx < 0.1:
-                            dx += 0.002
-                            angle = 90 
-                    elif estado in [5, 6]:  
-                        transfer = np.array([[dx], [0], [0]])
-                        if dx < 0.1:
-                            dx += 0.002
-                        angle = 90 
-                    elif estado in [7]: 
-                        transfer = np.array([[dx], [dz], [0]])
-                        if dx < 0:
-                            dx += 0.002
-                            angle = 90 
-                        elif dz < 0.1:
-                            dz += 0.002
-                            angle = 180  
-                    else:
-                        transfer = np.array([[0], [-dz], [0]])
-                        angle = 0
-
-                    # Rotaciona os vértices do modelo para o sentido atual
-                    rotated_vertices = rotate_obj(vertices, angle)                                                               
-
-                    rotation = r_mtx@transfer
-                    t = tvec.T + rotation
-
-                    imgpts, _ = cv2.projectPoints(rotated_vertices, rvec, t, camera_matrix, dist_coeffs)
+                    imgpts, _ = cv2.projectPoints(vertices, rvec, tvec, camera_matrix, dist_coeffs)
                     imgpts = imgpts.reshape(-1, 2).astype(int)
 
                     # Desenha as faces do modelo
                     for face in faces:
-                        pts = imgpts[face]
-                        cv2.polylines(frame, [pts], isClosed=True, color=(0, 0, 0), thickness=1)
-
-                # Animação do movimento editado da preferência do usuário
-                if estado == 0:
-                    if dz >= 0.1 and (ids[estado+1] in markerIds_flat):
-                        estado = 1
-                        dz = -0.1
-                elif estado == 1:
-                    if dz >= 0.1 and (ids[estado+1] in markerIds_flat):
-                        estado = 2
-                        dz = -0.1
-                elif estado == 2:
-                    if dz >= 0.1 and (ids[estado+1] in markerIds_flat):
-                        estado = 3
-                        dz = -0.1
-                elif estado == 3:
-                    if dz >= 0.1 and (ids[estado+1] in markerIds_flat):
-                        estado = 4
-                        dz = -0.1
-                        dx = 0
-                elif estado == 4:
-                    if dx >= 0.1 and (ids[estado+1] in markerIds_flat):
-                        estado = 5
-                        dx = -0.1
-                elif estado == 5:
-                    if dx >= 0.1 and (ids[estado+1] in markerIds_flat):
-                        estado = 6        
-                        dx = -0.1
-                elif estado == 6:
-                    if dx >= 0.1 and (ids[estado+1] in markerIds_flat):
-                        estado = 7
-                        dz = 0
-                        dx = -0.1
-                elif estado == 7:
-                    if dz >= 0.1 and (ids[estado+1] in markerIds_flat):
-                        estado = 8
-                        dz = -0.1
-                elif estado == 8:
-                    if dz >= 0.1 and (ids[estado+1] in markerIds_flat):
-                        estado = 9
-                        dz = -0.1
-                elif estado == 9:
-                    if dz >= 0.1 and (ids[estado+1] in markerIds_flat):
-                        estado = 10
-                        dz = -0.1                                                                              
-
-            if not any(id_valid in markerIds_flat for id_valid in ids):
-                sequencia = False
-                estado = 0
-                dz = 0
-
-    else:
-        sequencia = False
-        estado = 0
-        dz = 0           
-
-    if fimzao == False:
-        cv2.imshow('Aruco_obj',frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-    else:
-        # mostrar = cv2.imread("image_penguin.jpeg")  
-        # cv2.imshow('Aruco_obj',mostrar)
-        # cv2.waitKey(0)
+                        try:
+                            pts = imgpts[face]
+                            cv2.polylines(frame, [pts], isClosed=True, color=(0, 0, 0), thickness=1)
+                            
+                        except IndexError:
+                            pass
+                            
+    cv2.imshow('Aruco_obj',frame)
+    key = cv2.waitKey(1) & 0xFF
+    if key == ord('q'):
         break
 
 cv2.destroyAllWindows()

@@ -5,8 +5,6 @@ from imutils.video import VideoStream
 import imutils
 import time
 
-# source ./env_aruco/bin/activate
-
 # Carrega o dicionario que foi usado para gerar os ArUcos e
 # inicializa o detector usando valores padroes para os parametros
 parameters =  cv2.aruco.DetectorParameters()
@@ -39,11 +37,13 @@ while(True):
 
     # Tamanho da imagem que sera inserida no lugar dos ArUcos
     [l,c,ch] = np.shape(img_rgb)
+    
     # Pixels das quinas da imagem que sera inserida com ajuda do warp
     pts_src = np.array([[0,0],[c,0],[c,l],[0,l]])
     if markerIds is not None:
         if len(markerIds) > 0:
             for mark in markerCorners:  # Para cada marcador detectado
+                
                 # Anota as quinas do marcador detectado como pontos de destino da homografia
                 pts_dst = np.array(mark[0])
 

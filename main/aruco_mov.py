@@ -149,11 +149,8 @@ while(True):
                     imgpts = imgpts.reshape(-1, 2).astype(int)
 
                     # Desenha as faces do modelo
-                    limiar = 0.001
                     for face in faces:
                         pts = imgpts[face]
-                        values = [rotated_vertices[i][2] for i in face] #
-                        media = np.mean(values) #
                         cv2.polylines(frame, [pts], isClosed=True, color=(0, 0, 0), thickness=1)
 
                 if estado == 0:
@@ -198,8 +195,6 @@ while(True):
                     if dz >= 0.1 and (ids[estado+1] in markerIds_flat):
                         estado = 10
                         dz = -0.1                                                                              
-                # if estado + 1 < len(ids) and ids[estado + 1] in markerIds_flat:
-                #     estado += 1
 
             if not any(id_valid in markerIds_flat for id_valid in ids):
                 sequencia = False
@@ -216,11 +211,11 @@ while(True):
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
           
-    # else:
+    else:
     #     mostrar = cv2.imread("your_image")  
     #     cv2.imshow('Aruco_obj',mostrar)
     #     cv2.waitKey(0)
-    #     break
+        break
 
 cv2.destroyAllWindows()
 vs.stop()

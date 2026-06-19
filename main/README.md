@@ -11,8 +11,6 @@ This repository contains two main approaches:
 - Projection of 2D images over detected ArUco markers;
 - Projection and animation of 3D `.obj` models in real time.
 
----
-
 # Features
 
 - Real-time ArUco marker detection;
@@ -20,8 +18,6 @@ This repository contains two main approaches:
 - 3D `.obj` model rendering;
 - Pose estimation using `OpenCV`;
 - Real-time webcam processing.
-
----
 
 # Architecture
 
@@ -40,8 +36,6 @@ src/
 
 This project uses a penguin `.obj` model as the primary 3D object for Augmented Reality simulations, representing a game-like application developed as part of activities presented during the Jornada de Ensino, Pesquisa e Extensão of the campus. However, the system is fully customizable, requiring the user to import the desired `.obj` model and image files according to the intended Augmented Reality tests and applications.
 
----
-
 # System Requirements
 
 To run the project, you will need:
@@ -51,8 +45,6 @@ To run the project, you will need:
 - `Python 3` installed;
 - `VS Code` (recommended);
 - [OpenCV](https://opencv.org/) with ArUco module installed.
-
----
 
 # requirements.txt
 
@@ -77,8 +69,6 @@ Install dependencies automatically using:
 pip install -r requirements.txt
 ```
 
----
-
 # ArUco Dictionary
 
 The project uses the predefined dictionary:
@@ -88,8 +78,6 @@ cv2.aruco.DICT_4X4_1000
 ```
 
 This dictionary supports up to 1000 unique tags and can be viewed at [ArUco markers generator](https://chev.me/arucogen/).
-
----
 
 # Camera Input
 
@@ -105,8 +93,6 @@ If multiple cameras are connected, you may need to change the source index:
 VideoStream(src=1).start()
 ```
 
----
-
 # Possibilities with ArUco markers
 
 Before presenting the Augmented Reality animation application using sequential ArUco markers, it is important to demonstrate the fundamental capabilities of the system. Initially, the project shows how images and 3D objects can be projected onto ArUco markers in real time, enabling both 2D and 3D Augmented Reality visualization through computer vision techniques, homography transformations, and pose estimation.
@@ -121,8 +107,6 @@ image_aruco.py
 
 Detects ArUco markers and replaces the marker surface with a custom image using homography transformation. The algorithm performs real-time `ArUco marker` detection by identifying marker regions and extracting their corner coordinates. Using these reference points, the system computes the perspective transformation and applies image warping techniques to project external content directly onto the detected marker surface, enabling real-time `Augmented Reality` visualization.
 
----
-
 ### How to Insert Your Image
 
 Inside the code:
@@ -136,8 +120,6 @@ Replace with your image path:
 ```python
 img = cv2.imread('my_image.png')
 ```
-
----
 
 ## 3D Object Projection
 
@@ -158,8 +140,6 @@ Penguin.obj
 ```
 
 You may replace it with another `.obj` model.
-
----
 
 The project performs pose estimation of the detected ArUco markers using the `cv2.aruco.estimatePoseSingleMarkers()` function. Through this process, the system calculates the rotation vector (`rvec`) and translation vector (`tvec`), allowing the algorithm to determine the spatial position and orientation of each marker relative to the camera reference frame. These parameters are fundamental for correctly aligning virtual objects within the Augmented Reality environment and ensuring consistent 3D projection during real-time visualization.
 
